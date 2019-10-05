@@ -1,5 +1,7 @@
 package com.example.eatgo.domain;
 
+import lombok.*;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,44 +11,25 @@ import java.util.List;
 import java.util.Queue;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Restourant {
-
     @Id
     @GeneratedValue
     private Long id;
 
     private String name;
+
     private String address;
+
+//    private String regionName;
+//    private String categoryName;
 
     @Transient
     private List<MenuItem> menuItems = new ArrayList<MenuItem>();
-
-    public Restourant() {
-    }
-
-    public Restourant(String name, String address) {
-        this.name = name;
-        this.address = address;
-    }
-
-    public Restourant(Long id, String name, String address) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-    }
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Long getId(){return id;}
-
-    public String getName() {
-        return name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
 
     public String getInformation() {
         return name + " in "+ address;
@@ -56,13 +39,11 @@ public class Restourant {
         return menuItems;
     }
 
-    public void addMenuItem(MenuItem item){
-        menuItems.add(item);
-    }
-
     public void setMenuItems(List<MenuItem> menuItems) {
-        for (MenuItem menuItem : menuItems){
-            addMenuItem(menuItem);
-        }
+        this.menuItems = new ArrayList<>(menuItems);
+    }
+    public void updateInformation(String name, String address) {
+        this.name = name;
+        this.address = address;
     }
 }

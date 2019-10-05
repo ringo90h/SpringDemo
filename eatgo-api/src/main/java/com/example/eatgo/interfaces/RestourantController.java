@@ -13,42 +13,50 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 public class RestourantController {
-    //private RestourantRepositoryImpl repository = new RestourantRepository();
-    //@Component와 상응
+    //컨트롤러 -> 앱 서비스의 메소드와 매칭되어 전달자 역할
+    //실질적인 처리는 앱 서비스 클래스에서 수행
 
-    private RestourantRepository restourantRepository;
-//
-//    @Autowired
-//    private MenuItemRepository menuItemRepository;
     @Autowired
     private RestourantService restourantService;
 
+    // [GET]/restourants -> 레스토랑의 리스트를 리턴
     @GetMapping("/restourants")
     public List<Restourant> list(){
         return restourantService.getRestourants();
     }
 
+    // [GET]/restourants/{id} -> 레스토랑의 정보 반환
     @GetMapping("/restourants/{id}")
     public Restourant detail(@PathVariable("id") Long id){
         Restourant restourant = restourantService.getRestourant(id);
-        //기본 정보 + 메뉴 정보
-
-        //Restourant restourant = restourantRepository.findById(id);
-
         return restourant;
     }
 
+    // [POST]/restourants -> request의 내용을 읽어서
     @PostMapping("/restourants")
     public ResponseEntity<?> create(@RequestBody Restourant resource) throws URISyntaxException {
-        String name = resource.getName();
-        String address = resource.getAddress();
 
-        Restourant restorant = new Restourant(name, address);
+        Restourant restorant = Restourant.builder()
+                .name(resource.getName())
+                .address(resource.getAddress())
+                .build();
+
         restourantService.addRestourant(restorant);
         URI location = new URI("/restourant/" + restorant.getId());
 
-        return ResponseEntity.created(location).body("");
+        return ResponseEntity.created(location).body("{}");
+    }
+
+    @PatchMapping("/restourants/{id}")
+    public String update(@PathVariable("id") Long id, @RequestBody Restourant resource){
+        String name = resource.getName();
+        String address = resource.getAddress();
+
+        restourantService.updateRestourant(id, name, address);
+
+        return "{}";
     }
 }

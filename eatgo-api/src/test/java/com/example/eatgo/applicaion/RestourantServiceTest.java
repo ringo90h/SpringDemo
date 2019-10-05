@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,14 +41,21 @@ public class RestourantServiceTest {
 
     private void mockMenuItemReposity() {
         List<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add(new MenuItem("Kimchi"));
+        menuItems.add(MenuItem.builder()
+            .name("Kimchi")
+            .build());
 
         given(menuItemRepository.findAllByRestourantId(1004L)).willReturn(menuItems);
     }
 
     private void MockRestourantRepository() {
         List<Restourant> restourants = new ArrayList<>();
-        Restourant restourant = new Restourant(1004L,"Bob zip", "Seoul");
+        Restourant restourant = Restourant.builder()
+                .id(1004L)
+                .name("Bob zip")
+                .address("Seoul")
+                .build();
+
         restourants.add(restourant);
         given(restourantRepository.findAll()).willReturn(restourants);
         given(restourantRepository.findById(1004L))
@@ -72,16 +78,46 @@ public class RestourantServiceTest {
         MenuItem menuItem = restourant.getMenuItems().get(0);
         assertThat(menuItem.getName(), is("Kimchi"));
     }
+
+    @Test
+    public void addRestourant(){
+        given(restourantRepository.save(any())).will(invocation -> {
+            Restourant restourant = invocation.getArgument(0);
+            restourant.setId(1234L);
+            return restourant;
+        });
+
+        Restourant restourant = Restourant.builder()
+                .name("Store")
+                .address("Busan")
+                .build();
 //
-//    @Test
-//    public void addRestourant(){
-//        Restourant restourant = new Restourant("Store", "Busan");
-//        Restourant saved = new Restourant(1234L,"Store", "Busan");
-//
-//        given(restourantRepository.save(any())).willReturn(restourant);
-//
-//        Restourant created = restourantService.addRestourant(restourant);
-//
-//        assertThat(created.getId(), is(1234L));
-//    }
+//        Restourant saved = Restourant.builder()
+//                .id(1234L)
+//                .name("Store")
+//                .address("Busan")
+//                .build();
+
+
+        Restourant created = restourantService.addRestourant(restourant);
+
+        assertThat(created.getId(), is(1234L));
+    }
+
+    @Test
+    public void updateRestourant(){
+        Restourant restourant = Restourant.builder()
+                .id(1004L)
+                .name("Bob zip")
+                .address("Seoul")
+                .build();
+
+        given(restourantRepository.findById(1004L))
+                .willReturn(Optional.of(restourant));
+
+        restourantService.updateRestourant(1004L,"Sool zip", "Busan");
+
+        assertThat(restourant.getName(), is("Sool zip"));
+        assertThat(restourant.getAddress(), is("Busan"));
+    }
 }
